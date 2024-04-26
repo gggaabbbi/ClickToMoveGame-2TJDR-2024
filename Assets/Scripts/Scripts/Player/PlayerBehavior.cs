@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -7,9 +6,18 @@ public class PlayerBehavior : MonoBehaviour
 {
     private NavMeshAgent agent;
 
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float Acceleration;
+    [SerializeField] private float turnSpeed;
+
+    [SerializeField] private ParticleSystem clickParticle;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.speed = moveSpeed;
+        agent.acceleration = Acceleration;
+        agent.angularSpeed = turnSpeed;
     }
 
     private void Start()
@@ -22,6 +30,12 @@ public class PlayerBehavior : MonoBehaviour
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100))
         {
             agent.SetDestination(hit.point);
+            if(clickParticle != null)
+            {
+                ParticleSystem particle = Instantiate(clickParticle, hit.point, clickParticle.transform.rotation);
+                Destroy(particle.gameObject, 0.5f);
+            }
+            GameManager.Instance.AudioManager.PlaySFX(SFX.click);
         }
     }
 }
