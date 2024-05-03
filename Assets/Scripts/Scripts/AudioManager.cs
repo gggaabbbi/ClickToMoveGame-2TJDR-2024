@@ -28,8 +28,8 @@ public class AudioManager : MonoBehaviour
     private void Awake()
     {
         //SFXs = SFXConfigs.ToDictionary(sfxConfig => sfxConfig.Type, sfxConfig => sfxConfig);
-
-        foreach(SFXConfig config in SFXConfigs)
+        SFXs = new Dictionary<SFX, SFXConfig>();
+        foreach (SFXConfig config in SFXConfigs)
         {
             SFXs.Add(config.Type, config);
         }

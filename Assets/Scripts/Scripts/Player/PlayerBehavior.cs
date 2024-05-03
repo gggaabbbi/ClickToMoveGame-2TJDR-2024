@@ -9,8 +9,9 @@ public class PlayerBehavior : MonoBehaviour
     [SerializeField] private float moveSpeed;
     [SerializeField] private float Acceleration;
     [SerializeField] private float turnSpeed;
-
+    [SerializeField] private LayerMask attackLayer;
     [SerializeField] private ParticleSystem clickParticle;
+    [SerializeField] private FireBall spell;
 
     private void Awake()
     {
@@ -22,20 +23,45 @@ public class PlayerBehavior : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.InputManager.OnPlayerMove += HandlePlayerMovement;
+        GameManager.Instance.InputManager.OnPlayerMove += HandleClick;
     }
 
-    private void HandlePlayerMovement()
+    private void HandleClick()
     {
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out RaycastHit hit, 100))
         {
-            agent.SetDestination(hit.point);
-            if(clickParticle != null)
+            if (hit.collider.CompareTag("Enemy"))
             {
-                ParticleSystem particle = Instantiate(clickParticle, hit.point, clickParticle.transform.rotation);
-                Destroy(particle.gameObject, 0.5f);
+                HandleAttack(hit);
             }
-            GameManager.Instance.AudioManager.PlaySFX(SFX.click);
+            else
+            {
+                HandleMovement(hit);
+            }            
         }
+    }
+
+    private void HandleAttack(RaycastHit hit)
+    {
+        print("Attacking");
+        GetComponent<Animator>().SetTrigger("attack");
+        transform.LookAt(hit.point);
+        Instantiate(spell, transform.position, transform.rotation);
+    }
+
+    private void HandleMovement(RaycastHit hit)
+    {
+        agent.SetDestination(hit.point);
+        if (clickParticle != null)
+        {
+            ParticleSystem particle = Instantiate(clickParticle, hit.point, clickParticle.transform.rotation);
+            Destroy(particle.gameObject, 0.5f);
+        }
+        GameManager.Instance.AudioManager.PlaySFX(SFX.click);
+    }    
+
+    public NavMeshAgent GetPlayerAgent()
+    {
+        return agent;
     }
 }
